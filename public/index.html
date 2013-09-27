@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="/scripts/index.js" type="text/javascript"></script>
+<script src="/scripts/jquery-2.0.3.min.js" type="text/javascript"></script>
+<script src="/scripts/knockout-3.0.0beta.js" type="text/javascript"></script>
+<script src="/scripts/db.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+	function updateIndicator(){
+		document.getElementById('indicator').textContent = navigator.onLine ? 'online' : 'offline';
+	}
+</script>
+</head>
+
+<body onload="updateIndicator()" ononline="updateIndicator()" onoffline="updateIndicator()">
+<p>The network is: <span id='indicator'>(state unknown)</span></p>
+
+<button data-bind="click: updateDB">Start automatic update</button>
+<button data-bind="click: restoreDB">Restore DB</button>
+
+<table>
+<thead>
+<tr>
+	<th>ID</th><th>Name</th>
+</tr>
+</thead>
+<tbody data-bind="foreach: people">
+<tr>
+	<td data-bind="text: id"></td>
+	<td><a data-bind="attr:{ href: url}, text: name, click: $parent.show"></a></td>
+</tr>
+</tbody>
+</table>
+
+
+<script type="text/javascript">
+function PersonModel(){
+	var self = this;
+	self.id = ko.observable();
+	self.name = ko.observable();
+	self.url = ko.observable();
+}
+
+function HRViewModel(){
+	var self = this;
+	self.people = ko.observableArray();
+	self.show = function(data,event){
+		self.db.getPersonById(data.id()).done(function(d){
+			alert("Name: " + d.name + " Detail: " + d.detail);
+		});
+	}
+	self.update = function(people){
+		self.people.removeAll();
+			for(var i = 0; i < people.length; i++){
+				var person = new PersonModel();
+				person.id(people[i].id);
+				person.name(people[i].name);
+				person.url("#" + people[i].id);
+				self.people.push(person);
+			}
+	}
+	
+	self.db = new hrDB();
+	
+	self.init = function() {
+		self.db.prepareDatabase()
+			.done(function(){
+				self.db.getAllPeople().done(function(people){
+					self.update(people);
+				});
+			}).fail(function(err){
+				console.log(err);
+			});
+	}
+	
+	self.updateDB = function(event) {
+		self.db.startAutomaticUpdate();
+		self.db.onupdated = function() {
+			self.db.getAllPeople().done(function(people){
+				self.update(people);
+			}).fail(function(err){
+				console.log(err.message);
+			});
+		}
+	}
+	
+	self.restoreDB = function(event) {
+		console.log("button clicked");
+		self.db.stopAutomaticUpdate();
+		self.db.initDatabase()
+			.done(function(){
+				self.db.getAllPeople().done(function(people){
+					self.update(people);
+				});
+			}).fail(function(err){
+				console.log(err);
+			});	
+	}
+}
+
+var hrViewModel = new HRViewModel();
+hrViewModel.init();
+ko.applyBindings(hrViewModel);
+
+</script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,22 @@
+CACHE MANIFEST
+# v3 - 2013-09-25
+CACHE:
+/index.html
+/scripts/index.js
+/scripts/jquery-2.0.3.min.js
+/scripts/jquery-2.0.3.min.map
+/scripts/knockout-3.0.0beta.js
+/scripts/db.js
+/scripts/dbUpdateWorker.js
+
+/bootstrap/css/bootstrap.min.css
+/bootstrap/css/bootstrap-theme.css
+/bootstrap/fonts/glyphicons-halflings-regular.eot
+/bootstrap/fonts/glyphicons-halflings-regular.svg
+/bootstrap/fonts/glyphicons-halflings-regular.ttf
+/bootstrap/fonts/glyphicons-halflings-regular.woff
+/bootstrap/js/bootstrap.min.js
+
+NETWORK:
+/api
+/admin
